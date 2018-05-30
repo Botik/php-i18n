@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Fork this project on GitHub!
  * https://github.com/Philipp15b/php-i18n
@@ -7,11 +6,15 @@
  * License: MIT
  */
 
-class i18n {
-
+/**
+ * Class i18n
+ */
+class i18n
+{
     /**
      * Language file path
-     * This is the path for the language files. You must use the '{LANGUAGE}' placeholder for the language or the script wont find any language files.
+     * This is the path for the language files. You must use the '{LANGUAGE}' placeholder for the language or the
+     * script wont find any language files.
      *
      * @var string
      */
@@ -27,8 +30,8 @@ class i18n {
 
     /**
      * Fallback language
-     * This is the language which is used when there is no language file for all other user languages. It has the lowest priority.
-     * Remember to create a language file for the fallback!!
+     * This is the language which is used when there is no language file for all other user languages. It has the
+     * lowest priority. Remember to create a language file for the fallback!!
      *
      * @var string
      */
@@ -44,6 +47,7 @@ class i18n {
 
     /**
      * The class name of the compiled class that contains the translated texts.
+     *
      * @var string
      */
     protected $prefix = 'L';
@@ -54,17 +58,17 @@ class i18n {
      *
      * @var string
      */
-    protected $forcedLang = NULL;
+    protected $forcedLang;
 
     /**
      * This is the separator used if you use sections in your ini-file.
-     * For example, if you have a string 'greeting' in a section 'welcomepage' you will can access it via 'L::welcomepage_greeting'.
-     * If you changed it to 'ABC' you could access your string via 'L::welcomepageABCgreeting'
+     * For example, if you have a string 'greeting' in a section 'welcomepage' you will can access it via
+     * 'L::welcomepage_greeting'. If you changed it to 'ABC' you could access your string via
+     * 'L::welcomepageABCgreeting'
      *
      * @var string
      */
     protected $sectionSeparator = '_';
-
 
     /*
      * The following properties are only available after calling init().
@@ -79,47 +83,78 @@ class i18n {
      * 3. Language in $_SESSION['lang']
      * 4. Fallback language
      *
-     * @var array
+     * @var string[]
      */
     protected $userLangs = array();
 
-    protected $appliedLang = NULL;
-    protected $langFilePath = NULL;
-    protected $cacheFilePath = NULL;
-    protected $isInitialized = false;
+    /**
+     * @var string
+     */
+    protected $appliedLang;
 
+    /**
+     * @var string
+     */
+    protected $langFilePath;
+
+    /**
+     * @var string
+     */
+    protected $cacheFilePath;
+
+    /**
+     * @var bool
+     */
+    protected $isInitialized = false;
 
     /**
      * Constructor
-     * The constructor sets all important settings. All params are optional, you can set the options via extra functions too.
+     * The constructor sets all important settings. All params are optional, you can set the options via extra
+     * functions too.
      *
-     * @param string [$filePath] This is the path for the language files. You must use the '{LANGUAGE}' placeholder for the language.
-     * @param string [$cachePath] This is the path for all the cache files. Best is an empty directory with no other files in it. No placeholders.
-     * @param string [$fallbackLang] This is the language which is used when there is no language file for all other user languages. It has the lowest priority.
-     * @param string [$prefix] The class name of the compiled class that contains the translated texts. Defaults to 'L'.
+     * @param string [$filePath] This is the path for the language files. You must use the '{LANGUAGE}' placeholder for
+     *     the language.
+     * @param string [$cachePath] This is the path for all the cache files. Best is an empty directory with no other
+     *     files in it. No placeholders.
+     * @param string [$fallbackLang] This is the language which is used when there is no language file for all other
+     *     user languages. It has the lowest priority.
+     * @param string [$prefix] The class name of the compiled class that contains the translated texts. Defaults to
+     *     'L'.
      */
-    public function __construct($filePath = NULL, $cachePath = NULL, $fallbackLang = NULL, $prefix = NULL) {
+    public function __construct($filePath = null, $cachePath = null, $fallbackLang = null, $prefix = null)
+    {
         // Apply settings
-        if ($filePath != NULL) {
+        if ($filePath != null) {
             $this->filePath = $filePath;
         }
 
-        if ($cachePath != NULL) {
+        if ($cachePath != null) {
             $this->cachePath = $cachePath;
         }
 
-        if ($fallbackLang != NULL) {
+        if ($fallbackLang != null) {
             $this->fallbackLang = $fallbackLang;
         }
 
-        if ($prefix != NULL) {
+        if ($prefix != null) {
             $this->prefix = $prefix;
         }
     }
 
-    public function init() {
+    /**
+     * @throws BadMethodCallException
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     * @throws Exception
+     */
+    public function init()
+    {
         if ($this->isInitialized()) {
-            throw new BadMethodCallException('This object from class ' . __CLASS__ . ' is already initialized. It is not possible to init one object twice!');
+            throw new BadMethodCallException(
+                'This object from class '
+                .__CLASS__
+                .' is already initialized. It is not possible to init one object twice!'
+            );
         }
 
         $this->isInitialized = true;
@@ -127,109 +162,190 @@ class i18n {
         $this->userLangs = $this->getUserLangs();
 
         // search for language file
-        $this->appliedLang = NULL;
+        $this->appliedLang = null;
+
         foreach ($this->userLangs as $priority => $langcode) {
             $this->langFilePath = $this->getConfigFilename($langcode);
+
             if (file_exists($this->langFilePath)) {
                 $this->appliedLang = $langcode;
                 break;
             }
         }
-        if ($this->appliedLang == NULL) {
+
+        if ($this->appliedLang == null) {
             throw new RuntimeException('No language file was found.');
         }
 
         // search for cache file
-        $this->cacheFilePath = $this->cachePath . '/php_i18n_' . md5_file(__FILE__) . '_' . $this->prefix . '_' . $this->appliedLang . '.cache.php';
+        $this->cacheFilePath = $this->cachePath
+            .'/php_i18n_'
+            .md5_file(__FILE__)
+            .'_'
+            .$this->prefix
+            .'_'
+            .$this->appliedLang
+            .'.cache.php';
 
         // whether we need to create a new cache file
-        $outdated = !file_exists($this->cacheFilePath) ||
-            filemtime($this->cacheFilePath) < filemtime($this->langFilePath) || // the language config was updated
-            ($this->mergeFallback && filemtime($this->cacheFilePath) < filemtime($this->getConfigFilename($this->fallbackLang))); // the fallback language config was updated
+        $outdated = !file_exists($this->cacheFilePath)
+            || filemtime($this->cacheFilePath) < filemtime($this->langFilePath)
+            || ( // the language config was updated
+                $this->mergeFallback
+                && filemtime($this->cacheFilePath) < filemtime($this->getConfigFilename($this->fallbackLang))
+            ); // the fallback language config was updated
 
         if ($outdated) {
             $config = $this->load($this->langFilePath);
-            if ($this->mergeFallback)
+
+            if ($this->mergeFallback) {
                 $config = array_replace_recursive($this->load($this->getConfigFilename($this->fallbackLang)), $config);
-
-            $compiled = "<?php class " . $this->prefix . " {\n"
-            	. $this->compile($config)
-            	. 'public static function __callStatic($string, $args) {' . "\n"
-				. '    return defined("self::" . $string) ? vsprintf(constant("self::" . $string), $args) : $string;'
-            	. "\n}\n}\n"
-            	. "function ".$this->prefix .'($string, $args=NULL) {'."\n"
-            	. '    $return = constant("'.$this->prefix.'::".$string);'."\n"
-            	. '    return $args ? vsprintf($return,$args) : $return;'
-            	. "\n}";
-
-			if( ! is_dir($this->cachePath))
-				mkdir($this->cachePath, 0755, true);
-
-            if (file_put_contents($this->cacheFilePath, $compiled) === FALSE) {
-                throw new Exception("Could not write cache file to path '" . $this->cacheFilePath . "'. Is it writable?");
             }
-            chmod($this->cacheFilePath, 0755);
 
+            $compiled = '<?php'.PHP_EOL
+                .'class '.$this->prefix.PHP_EOL
+                .'{'.PHP_EOL
+                .$this->compile($config).PHP_EOL
+                .'    public static function __callStatic($string, array $args = null) {'.PHP_EOL
+                .'        return defined(\'self::\'.$string) ? vsprintf(constant(\'self::\'.$string), $args) : $string;'
+                .PHP_EOL.'    }'.PHP_EOL.'}'.PHP_EOL.PHP_EOL
+                .'function '.$this->prefix.'($string, array $args = null) {'.PHP_EOL
+                .'    $return = constant(\''.$this->prefix.'::\'.$string);'.PHP_EOL
+                .'    return $args ? vsprintf($return,$args) : $return;'.PHP_EOL
+                .'}'.PHP_EOL;
+
+            if (!is_dir($this->cachePath)) {
+                mkdir($this->cachePath, 0755, true);
+            }
+
+            if (file_put_contents($this->cacheFilePath, $compiled) === false) {
+                throw new Exception('Could not write cache file to path "'.$this->cacheFilePath.'". Is it writable?');
+            }
+
+            chmod($this->cacheFilePath, 0755);
         }
 
         require_once $this->cacheFilePath;
     }
 
-    public function isInitialized() {
+    /**
+     * @return bool
+     */
+    public function isInitialized()
+    {
         return $this->isInitialized;
     }
 
-    public function getAppliedLang() {
+    /**
+     * @return string
+     */
+    public function getAppliedLang()
+    {
         return $this->appliedLang;
     }
 
-    public function getCachePath() {
+    /**
+     * @return string
+     */
+    public function getCachePath()
+    {
         return $this->cachePath;
     }
 
-    public function getFallbackLang() {
+    /**
+     * @return string
+     */
+    public function getFallbackLang()
+    {
         return $this->fallbackLang;
     }
 
-    public function setFilePath($filePath) {
+    /**
+     * @param string $filePath
+     *
+     * @throws BadMethodCallException
+     */
+    public function setFilePath($filePath)
+    {
         $this->fail_after_init();
         $this->filePath = $filePath;
     }
 
-    public function setCachePath($cachePath) {
+    /**
+     * @param string $cachePath
+     *
+     * @throws BadMethodCallException
+     */
+    public function setCachePath($cachePath)
+    {
         $this->fail_after_init();
         $this->cachePath = $cachePath;
     }
 
-    public function setFallbackLang($fallbackLang) {
+    /**
+     * @param string $fallbackLang
+     *
+     * @throws BadMethodCallException
+     */
+    public function setFallbackLang($fallbackLang)
+    {
         $this->fail_after_init();
         $this->fallbackLang = $fallbackLang;
     }
 
-    public function setMergeFallback($mergeFallback) {
+    /**
+     * @param string $mergeFallback
+     *
+     * @throws BadMethodCallException
+     */
+    public function setMergeFallback($mergeFallback)
+    {
         $this->fail_after_init();
         $this->mergeFallback = $mergeFallback;
     }
 
-    public function setPrefix($prefix) {
+    /**
+     * @param string $prefix
+     *
+     * @throws BadMethodCallException
+     */
+    public function setPrefix($prefix)
+    {
         $this->fail_after_init();
         $this->prefix = $prefix;
     }
 
-    public function setForcedLang($forcedLang) {
+    /**
+     * @param string $forcedLang
+     *
+     * @throws BadMethodCallException
+     */
+    public function setForcedLang($forcedLang)
+    {
         $this->fail_after_init();
         $this->forcedLang = $forcedLang;
     }
 
-    public function setSectionSeparator($sectionSeparator) {
+    /**
+     * @param string $sectionSeparator
+     *
+     * @throws BadMethodCallException
+     */
+    public function setSectionSeparator($sectionSeparator)
+    {
         $this->fail_after_init();
         $this->sectionSeparator = $sectionSeparator;
     }
 
     /**
      * @deprecated Use setSectionSeparator.
+     *
+     * @param string$sectionSeparator
+     *
+     * @throws BadMethodCallException
      */
-    public function setSectionSeperator($sectionSeparator) {
+    public function setSectionSeperator($sectionSeparator)
+    {
         $this->setSectionSeparator($sectionSeparator);
     }
 
@@ -244,13 +360,14 @@ class i18n {
      * 5. Fallback language
      * Note: duplicate values are deleted.
      *
-     * @return array with the user languages sorted by priority.
+     * @return string[] with the user languages sorted by priority.
      */
-    public function getUserLangs() {
+    public function getUserLangs()
+    {
         $userLangs = array();
 
         // Highest priority: forced language
-        if ($this->forcedLang != NULL) {
+        if ($this->forcedLang != null) {
             $userLangs[] = $this->forcedLang;
         }
 
@@ -279,61 +396,95 @@ class i18n {
 
         // remove illegal userLangs
         $userLangs2 = array();
+
         foreach ($userLangs as $key => $value) {
             // only allow a-z, A-Z and 0-9 and _ and -
-            if (preg_match('/^[a-zA-Z0-9_-]*$/', $value) === 1)
+            if (preg_match('/^[a-zA-Z0-9_-]*$/', $value) === 1) {
                 $userLangs2[$key] = $value;
+            }
         }
 
         return $userLangs2;
     }
 
-    protected function getConfigFilename($langcode) {
+    /**
+     * @param string $langcode
+     *
+     * @return string
+     */
+    protected function getConfigFilename($langcode)
+    {
         return str_replace('{LANGUAGE}', $langcode, $this->filePath);
     }
 
-    protected function load($filename) {
+    /**
+     * @param string $filename
+     *
+     * @return mixed
+     * @throws InvalidArgumentException
+     */
+    protected function load($filename)
+    {
         $ext = substr(strrchr($filename, '.'), 1);
+
         switch ($ext) {
             case 'properties':
             case 'ini':
-                $config = parse_ini_file($filename, true);
-                break;
+                return parse_ini_file($filename, true);
             case 'yml':
             case 'yaml':
-                $config = spyc_load_file($filename);
-                break;
+                return spyc_load_file($filename);
             case 'json':
-                $config = json_decode(file_get_contents($filename), true);
-                break;
-            default:
-                throw new InvalidArgumentException($ext . " is not a valid extension!");
+                return json_decode(file_get_contents($filename), true);
         }
-        return $config;
+
+        throw new InvalidArgumentException($ext.' is not a valid extension!');
     }
 
     /**
      * Recursively compile an associative array to PHP code.
+     *
+     * @param mixed[] $config
+     * @param string  $prefix
+     *
+     * @return string
+     * @throws InvalidArgumentException
      */
-    protected function compile($config, $prefix = '') {
+    protected function compile(array $config, $prefix = '')
+    {
         $code = '';
+
         foreach ($config as $key => $value) {
             if (is_array($value)) {
-                $code .= $this->compile($value, $prefix . $key . $this->sectionSeparator);
+                $code .= $this->compile($value, $prefix.$key.$this->sectionSeparator);
             } else {
-                $fullName = $prefix . $key;
+                $fullName = $prefix.$key;
+
                 if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $fullName)) {
-                    throw new InvalidArgumentException(__CLASS__ . ": Cannot compile translation key " . $fullName . " because it is not a valid PHP identifier.");
+                    throw new InvalidArgumentException(
+                        __CLASS__
+                        .': Cannot compile translation key '
+                        .$fullName
+                        .' because it is not a valid PHP identifier.'
+                    );
                 }
-                $code .= 'const ' . $fullName . ' = \'' . str_replace('\'', '\\\'', $value) . "';\n";
+
+                $code .= '    const '.$fullName.' = \''.str_replace('\'', '\\\'', $value).'\';'.PHP_EOL;
             }
         }
+
         return $code;
     }
 
-    protected function fail_after_init() {
+    /**
+     * @throws BadMethodCallException
+     */
+    protected function fail_after_init()
+    {
         if ($this->isInitialized()) {
-            throw new BadMethodCallException('This ' . __CLASS__ . ' object is already initalized, so you can not change any settings.');
+            throw new BadMethodCallException(
+                'This '.__CLASS__.' object is already initialized, so you can not change any settings.'
+            );
         }
     }
 }
