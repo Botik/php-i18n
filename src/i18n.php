@@ -146,7 +146,7 @@ class i18n
     }
 
     /**
-     * @return object
+     * @return TranslatorInterface
      * @throws \BadMethodCallException
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
