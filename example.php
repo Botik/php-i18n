@@ -5,7 +5,7 @@
     // Parameters: language file path, cache dir, default language (all optional)
 
     // init object: load language files, parse them if not cached, and so on.
-    $i18n->init();
+    $translator = $i18n->init();
 ?>
 
 <!-- get applied language -->
@@ -15,5 +15,5 @@
 <p>Cache path: <?= $i18n->getCachePath(); ?></p>
 
 <!-- Get some greetings -->
-<p>A greeting: <?= L::greeting; ?></p>
-<p>Something other: <?= L::category_somethingother; ?></p><!-- normally sections in the ini are seperated with an underscore like here. -->
+<p>A greeting: <?= $translator->t('greeting'); ?></p>
+<p>Something other: <?= $translator->t('category_somethingother'); ?></p><!-- normally sections in the ini are seperated with an underscore like here. -->

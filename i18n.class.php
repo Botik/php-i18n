@@ -6,6 +6,8 @@
  * License: MIT
  */
 
+declare(strict_types = 1);
+
 /**
  * Class i18n
  */
@@ -85,7 +87,7 @@ class i18n
      *
      * @var string[]
      */
-    protected $userLangs = array();
+    protected $userLangs = [];
 
     /**
      * @var string
@@ -121,7 +123,7 @@ class i18n
      * @param string [$prefix] The class name of the compiled class that contains the translated texts. Defaults to
      *     'L'.
      */
-    public function __construct($filePath = null, $cachePath = null, $fallbackLang = null, $prefix = null)
+    public function __construct(string $filePath = null, string $cachePath = null, string $fallbackLang = null, string $prefix = null)
     {
         // Apply settings
         if ($filePath != null) {
@@ -142,6 +144,7 @@ class i18n
     }
 
     /**
+     * @return object
      * @throws BadMethodCallException
      * @throws InvalidArgumentException
      * @throws RuntimeException
@@ -192,8 +195,9 @@ class i18n
             || filemtime($this->cacheFilePath) < filemtime($this->langFilePath)
             || ( // the language config was updated
                 $this->mergeFallback
-                && filemtime($this->cacheFilePath) < filemtime($this->getConfigFilename($this->fallbackLang))
-            ); // the fallback language config was updated
+                && filemtime($this->cacheFilePath) < filemtime(
+                    $this->getConfigFilename($this->fallbackLang)
+                )); // the fallback language config was updated
 
         if ($outdated) {
             $config = $this->load($this->langFilePath);
@@ -203,16 +207,13 @@ class i18n
             }
 
             $compiled = '<?php'.PHP_EOL
-                .'class '.$this->prefix.PHP_EOL
-                .'{'.PHP_EOL
+                .'return new class {'.PHP_EOL
+                .'    private $_keys = ['.PHP_EOL
                 .$this->compile($config).PHP_EOL
-                .'    public static function __callStatic($string, array $args = null) {'.PHP_EOL
-                .'        return defined(\'self::\'.$string) ? vsprintf(constant(\'self::\'.$string), $args) : $string;'
-                .PHP_EOL.'    }'.PHP_EOL.'}'.PHP_EOL.PHP_EOL
-                .'function '.$this->prefix.'($string, array $args = null) {'.PHP_EOL
-                .'    $return = constant(\''.$this->prefix.'::\'.$string);'.PHP_EOL
-                .'    return $args ? vsprintf($return,$args) : $return;'.PHP_EOL
-                .'}'.PHP_EOL;
+                .'    ];'.PHP_EOL.PHP_EOL
+                .'    public function t(string $string, array $args = null) {'.PHP_EOL
+                .'        return isset($this->_keys[$string]) ? vsprintf($this->_keys[$string], $args) : $string;'
+                .PHP_EOL.'    }'.PHP_EOL.'};'.PHP_EOL;
 
             if (!is_dir($this->cachePath)) {
                 mkdir($this->cachePath, 0755, true);
@@ -225,13 +226,13 @@ class i18n
             chmod($this->cacheFilePath, 0755);
         }
 
-        require_once $this->cacheFilePath;
+        return include $this->cacheFilePath;
     }
 
     /**
      * @return bool
      */
-    public function isInitialized()
+    public function isInitialized(): bool
     {
         return $this->isInitialized;
     }
@@ -239,7 +240,7 @@ class i18n
     /**
      * @return string
      */
-    public function getAppliedLang()
+    public function getAppliedLang(): string
     {
         return $this->appliedLang;
     }
@@ -247,7 +248,7 @@ class i18n
     /**
      * @return string
      */
-    public function getCachePath()
+    public function getCachePath(): string
     {
         return $this->cachePath;
     }
@@ -255,7 +256,7 @@ class i18n
     /**
      * @return string
      */
-    public function getFallbackLang()
+    public function getFallbackLang(): string
     {
         return $this->fallbackLang;
     }
@@ -265,7 +266,7 @@ class i18n
      *
      * @throws BadMethodCallException
      */
-    public function setFilePath($filePath)
+    public function setFilePath(string $filePath)
     {
         $this->fail_after_init();
         $this->filePath = $filePath;
@@ -276,7 +277,7 @@ class i18n
      *
      * @throws BadMethodCallException
      */
-    public function setCachePath($cachePath)
+    public function setCachePath(string $cachePath)
     {
         $this->fail_after_init();
         $this->cachePath = $cachePath;
@@ -287,7 +288,7 @@ class i18n
      *
      * @throws BadMethodCallException
      */
-    public function setFallbackLang($fallbackLang)
+    public function setFallbackLang(string $fallbackLang)
     {
         $this->fail_after_init();
         $this->fallbackLang = $fallbackLang;
@@ -298,7 +299,7 @@ class i18n
      *
      * @throws BadMethodCallException
      */
-    public function setMergeFallback($mergeFallback)
+    public function setMergeFallback(string $mergeFallback)
     {
         $this->fail_after_init();
         $this->mergeFallback = $mergeFallback;
@@ -309,7 +310,7 @@ class i18n
      *
      * @throws BadMethodCallException
      */
-    public function setPrefix($prefix)
+    public function setPrefix(string $prefix)
     {
         $this->fail_after_init();
         $this->prefix = $prefix;
@@ -320,7 +321,7 @@ class i18n
      *
      * @throws BadMethodCallException
      */
-    public function setForcedLang($forcedLang)
+    public function setForcedLang(string $forcedLang)
     {
         $this->fail_after_init();
         $this->forcedLang = $forcedLang;
@@ -331,7 +332,7 @@ class i18n
      *
      * @throws BadMethodCallException
      */
-    public function setSectionSeparator($sectionSeparator)
+    public function setSectionSeparator(string $sectionSeparator)
     {
         $this->fail_after_init();
         $this->sectionSeparator = $sectionSeparator;
@@ -340,11 +341,11 @@ class i18n
     /**
      * @deprecated Use setSectionSeparator.
      *
-     * @param string$sectionSeparator
+     * @param string $sectionSeparator
      *
      * @throws BadMethodCallException
      */
-    public function setSectionSeperator($sectionSeparator)
+    public function setSectionSeperator(string $sectionSeparator)
     {
         $this->setSectionSeparator($sectionSeparator);
     }
@@ -362,9 +363,9 @@ class i18n
      *
      * @return string[] with the user languages sorted by priority.
      */
-    public function getUserLangs()
+    public function getUserLangs(): array
     {
-        $userLangs = array();
+        $userLangs = [];
 
         // Highest priority: forced language
         if ($this->forcedLang != null) {
@@ -395,7 +396,7 @@ class i18n
         $userLangs = array_unique($userLangs);
 
         // remove illegal userLangs
-        $userLangs2 = array();
+        $userLangs2 = [];
 
         foreach ($userLangs as $key => $value) {
             // only allow a-z, A-Z and 0-9 and _ and -
@@ -412,7 +413,7 @@ class i18n
      *
      * @return string
      */
-    protected function getConfigFilename($langcode)
+    protected function getConfigFilename(string $langcode): string
     {
         return str_replace('{LANGUAGE}', $langcode, $this->filePath);
     }
@@ -423,7 +424,7 @@ class i18n
      * @return mixed
      * @throws InvalidArgumentException
      */
-    protected function load($filename)
+    protected function load(string $filename)
     {
         $ext = substr(strrchr($filename, '.'), 1);
 
@@ -450,17 +451,29 @@ class i18n
      * @return string
      * @throws InvalidArgumentException
      */
-    protected function compile(array $config, $prefix = '')
+    protected function compile(array $config, string $prefix = ''): string
     {
-        $code = '';
+        return implode(','.PHP_EOL, $this->arrayCompile($config, $prefix));
+    }
+
+    /**
+     * @param array $config
+     * @param string $prefix
+     *
+     * @return string[]
+     * @throws InvalidArgumentException
+     */
+    protected function arrayCompile(array $config, string $prefix = ''): array
+    {
+        $code = [];
 
         foreach ($config as $key => $value) {
             if (is_array($value)) {
-                $code .= $this->compile($value, $prefix.$key.$this->sectionSeparator);
+                $code = array_merge($code, $this->arrayCompile($value, $prefix.$key.$this->sectionSeparator));
             } else {
                 $fullName = $prefix.$key;
 
-                if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $fullName)) {
+                if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\\.\x7f-\xff]*$/', $fullName)) {
                     throw new InvalidArgumentException(
                         __CLASS__
                         .': Cannot compile translation key '
@@ -469,7 +482,7 @@ class i18n
                     );
                 }
 
-                $code .= '    const '.$fullName.' = \''.str_replace('\'', '\\\'', $value).'\';'.PHP_EOL;
+                $code[] = '        \''.$fullName.'\' => \''.str_replace('\'', '\\\'', $value).'\'';
             }
         }
 
