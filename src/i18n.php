@@ -12,6 +12,8 @@ namespace Philipp15b;
 
 /**
  * Class i18n
+ *
+ * @package Philipp15b
  */
 class i18n
 {
@@ -209,13 +211,10 @@ class i18n
             }
 
             $compiled = '<?php'.PHP_EOL
-                .'return new class implements \Philipp15b\TranslatorInterface {'.PHP_EOL
-                .'    private $_keys = ['.PHP_EOL
+                .'return new class extends \Philipp15b\Translator {'.PHP_EOL
+                .'    protected $_keys = ['.PHP_EOL
                 .$this->compile($config).PHP_EOL
-                .'    ];'.PHP_EOL.PHP_EOL
-                .'    public function t(string $string, array $args = null) {'.PHP_EOL
-                .'        return isset($this->_keys[$string]) ? vsprintf($this->_keys[$string], $args) : $string;'
-                .PHP_EOL.'    }'.PHP_EOL.'};'.PHP_EOL;
+                .'    ];'.PHP_EOL.'};'.PHP_EOL;
 
             if (!is_dir($this->cachePath)) {
                 mkdir($this->cachePath, 0755, true);

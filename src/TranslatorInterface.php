@@ -6,6 +6,8 @@ namespace Philipp15b;
 
 /**
  * Interface TranslatorInterface
+ *
+ * @package Philipp15b
  */
 interface TranslatorInterface
 {
