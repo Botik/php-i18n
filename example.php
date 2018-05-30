@@ -1,6 +1,6 @@
 <?php
 
-require_once 'src/i18n.php';
+require_once 'vendor/autoload.php';
 
 use Philipp15b\i18n;
 

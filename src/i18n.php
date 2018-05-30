@@ -152,7 +152,7 @@ class i18n
      * @throws \RuntimeException
      * @throws \Exception
      */
-    public function init()
+    public function init(): TranslatorInterface
     {
         if ($this->isInitialized()) {
             throw new \BadMethodCallException(
@@ -209,7 +209,7 @@ class i18n
             }
 
             $compiled = '<?php'.PHP_EOL
-                .'return new class {'.PHP_EOL
+                .'return new class implements \Philipp15b\TranslatorInterface {'.PHP_EOL
                 .'    private $_keys = ['.PHP_EOL
                 .$this->compile($config).PHP_EOL
                 .'    ];'.PHP_EOL.PHP_EOL
