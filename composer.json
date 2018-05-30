@@ -6,7 +6,9 @@
         }
     ],
     "autoload": {
-        "files": [ "i18n.class.php" ]
+        "psr-4": {
+            "Philipp15b\\": "src/"
+        }
     },
     "description": "Simple i18n class for PHP",
     "license": "MIT",

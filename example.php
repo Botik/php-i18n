@@ -1,11 +1,14 @@
 <?php
-    // include i18n class and initialize it
-    require_once 'i18n.class.php';
-    $i18n = new i18n('lang/lang_{LANGUAGE}.ini', 'langcache/', 'en');
-    // Parameters: language file path, cache dir, default language (all optional)
 
-    // init object: load language files, parse them if not cached, and so on.
-    $translator = $i18n->init();
+require_once 'src/i18n.php';
+
+use Philipp15b\i18n;
+
+$i18n = new i18n('lang/lang_{LANGUAGE}.ini', 'langcache/', 'en');
+// Parameters: language file path, cache dir, default language (all optional)
+
+// init object: load language files, parse them if not cached, and so on.
+$translator = $i18n->init();
 ?>
 
 <!-- get applied language -->

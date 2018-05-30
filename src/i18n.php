@@ -8,6 +8,8 @@
 
 declare(strict_types = 1);
 
+namespace Philipp15b;
+
 /**
  * Class i18n
  */
@@ -145,15 +147,15 @@ class i18n
 
     /**
      * @return object
-     * @throws BadMethodCallException
-     * @throws InvalidArgumentException
-     * @throws RuntimeException
-     * @throws Exception
+     * @throws \BadMethodCallException
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Exception
      */
     public function init()
     {
         if ($this->isInitialized()) {
-            throw new BadMethodCallException(
+            throw new \BadMethodCallException(
                 'This object from class '
                 .__CLASS__
                 .' is already initialized. It is not possible to init one object twice!'
@@ -177,7 +179,7 @@ class i18n
         }
 
         if ($this->appliedLang == null) {
-            throw new RuntimeException('No language file was found.');
+            throw new \RuntimeException('No language file was found.');
         }
 
         // search for cache file
@@ -220,7 +222,7 @@ class i18n
             }
 
             if (file_put_contents($this->cacheFilePath, $compiled) === false) {
-                throw new Exception('Could not write cache file to path "'.$this->cacheFilePath.'". Is it writable?');
+                throw new \Exception('Could not write cache file to path "'.$this->cacheFilePath.'". Is it writable?');
             }
 
             chmod($this->cacheFilePath, 0755);
@@ -264,7 +266,7 @@ class i18n
     /**
      * @param string $filePath
      *
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     public function setFilePath(string $filePath)
     {
@@ -275,7 +277,7 @@ class i18n
     /**
      * @param string $cachePath
      *
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     public function setCachePath(string $cachePath)
     {
@@ -286,7 +288,7 @@ class i18n
     /**
      * @param string $fallbackLang
      *
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     public function setFallbackLang(string $fallbackLang)
     {
@@ -297,7 +299,7 @@ class i18n
     /**
      * @param string $mergeFallback
      *
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     public function setMergeFallback(string $mergeFallback)
     {
@@ -308,7 +310,7 @@ class i18n
     /**
      * @param string $prefix
      *
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     public function setPrefix(string $prefix)
     {
@@ -319,7 +321,7 @@ class i18n
     /**
      * @param string $forcedLang
      *
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     public function setForcedLang(string $forcedLang)
     {
@@ -330,7 +332,7 @@ class i18n
     /**
      * @param string $sectionSeparator
      *
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     public function setSectionSeparator(string $sectionSeparator)
     {
@@ -343,7 +345,7 @@ class i18n
      *
      * @param string $sectionSeparator
      *
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     public function setSectionSeperator(string $sectionSeparator)
     {
@@ -422,7 +424,7 @@ class i18n
      * @param string $filename
      *
      * @return mixed
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     protected function load(string $filename)
     {
@@ -439,7 +441,7 @@ class i18n
                 return json_decode(file_get_contents($filename), true);
         }
 
-        throw new InvalidArgumentException($ext.' is not a valid extension!');
+        throw new \InvalidArgumentException($ext.' is not a valid extension!');
     }
 
     /**
@@ -449,7 +451,7 @@ class i18n
      * @param string  $prefix
      *
      * @return string
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     protected function compile(array $config, string $prefix = ''): string
     {
@@ -461,7 +463,7 @@ class i18n
      * @param string $prefix
      *
      * @return string[]
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     protected function arrayCompile(array $config, string $prefix = ''): array
     {
@@ -474,7 +476,7 @@ class i18n
                 $fullName = $prefix.$key;
 
                 if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\\.\x7f-\xff]*$/', $fullName)) {
-                    throw new InvalidArgumentException(
+                    throw new \InvalidArgumentException(
                         __CLASS__
                         .': Cannot compile translation key '
                         .$fullName
@@ -490,12 +492,12 @@ class i18n
     }
 
     /**
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     protected function fail_after_init()
     {
         if ($this->isInitialized()) {
-            throw new BadMethodCallException(
+            throw new \BadMethodCallException(
                 'This '.__CLASS__.' object is already initialized, so you can not change any settings.'
             );
         }
