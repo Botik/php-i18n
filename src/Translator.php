@@ -14,6 +14,14 @@ class Translator implements TranslatorInterface
     protected $_keys = [];
 
     public function t(string $string, array $args = null) {
-        return isset($this->_keys[$string]) ? vsprintf($this->_keys[$string], $args) : $string;
+        if (!isset($this->_keys[$string])) {
+            return $string;
+        }
+
+        if ($args) {
+            return str_replace(array_keys($args), array_values($args), $this->_keys[$string]);
+        }
+
+        return $this->_keys[$string];
     }
 }
