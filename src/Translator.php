@@ -11,9 +11,19 @@ namespace Philipp15b;
  */
 class Translator implements TranslatorInterface
 {
+    /**
+     * @var string[]
+     */
     protected $_keys = [];
 
-    public function t(string $string, array $args = null) {
+    /**
+     * @param string   $string
+     * @param string[] $args
+     *
+     * @return string
+     */
+    public function t(string $string, array $args = null): string
+    {
         return isset($this->_keys[$string]) ? vsprintf($this->_keys[$string], $args) : $string;
     }
 }

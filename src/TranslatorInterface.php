@@ -11,5 +11,11 @@ namespace Philipp15b;
  */
 interface TranslatorInterface
 {
-    public function t(string $string, array $args = null);
+    /**
+     * @param string   $string
+     * @param string[] $args
+     *
+     * @return string
+     */
+    public function t(string $string, array $args = null): string;
 }
