@@ -458,8 +458,8 @@ class i18n
     }
 
     /**
-     * @param array $config
-     * @param string $prefix
+     * @param mixed[] $config
+     * @param string  $prefix
      *
      * @return string[]
      * @throws \InvalidArgumentException

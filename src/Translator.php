@@ -11,15 +11,32 @@ namespace Philipp15b;
  */
 class Translator implements TranslatorInterface
 {
+    /**
+     * @var string[]
+     */
     protected $_keys = [];
 
-    public function t(string $string, array $args = null) {
+    /**
+     * @param string   $string
+     * @param string[] $args
+     *
+     * @return string
+     */
+    public function t(string $string, array $args = null): string
+    {
         if (!isset($this->_keys[$string])) {
             return $string;
         }
 
         if ($args) {
-            return str_replace(array_keys($args), array_values($args), $this->_keys[$string]);
+            $search = $replace = [];
+
+            foreach ($args as $k => $v) {
+                $search[] = '{{'.$k.'}}';
+                $replace[] = $v;
+            }
+
+            return str_replace($search, $replace, $this->_keys[$string]);
         }
 
         return $this->_keys[$string];
