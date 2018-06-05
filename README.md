@@ -8,15 +8,14 @@ Some of its features:
 
 * Translation strings in `.ini`/`.properties`, `.json` or `.yaml` format
 * Caching
-* Simple API: `L::category_stringname`
-* Built-in support for [vsprintf](http://php.net/manual/en/function.vsprintf.php) formatting: `L::name($par1)`
+* Built-in support for [vsprintf](http://php.net/manual/en/function.vsprintf.php) formatting: `$trans->t('name', $par1)`
 * Automatic user language detection
 * Simplicity ;)
 
 ## Requirements
 
 * Write permissions in cache directory
-* PHP 5.2 and above
+* PHP 7.0 and above
 * PHP SPL extension (installed by default)
 
 ## Setup
@@ -48,19 +47,14 @@ somethingother = "Etwas anderes..."
 Save both files in the directory you will set in step 4.
 The files must be named according to the filePath setting, where '{LANGUAGE}' will be replaced by the user's language, e.g. 'en' or 'de'.
 
-### 2. Include the class
+### 2. Include the class and initialize the class
 
 ```php
 <?php
-	require_once 'i18n.class.php';
-?>
-```
 
-### 3. Initialize the class
-```php
-<?php
-	$i18n = new i18n();
-?>
+use Philipp15b\i18n;
+
+$i18n = new i18n();
 ```
 
 ### 4. Set some settings if necessary
@@ -70,21 +64,19 @@ The possible settings are:
 * Language file path (default: `./lang/lang_{LANGUAGE}.ini`)
 * Cache file path (default: `./langcache/`)
 * The fallback language, if no one of the user languages is available (default: `en`)
-* A 'prefix', the compiled class name (default `L`)
 * A forced language, if you want to force a language (default: none)
-* The section separator: this is used to seperate the sections in the language class. If you set the separator to `_abc_` you could access your localized strings via `L::category_abc_stringname` if you use categories in your ini. (default: `_`)
+* The section separator: this is used to seperate the sections in the language class. If you set the separator to `_abc_` you could access your localized strings via `$trans->t('category_abc_stringname')` if you use categories in your ini. (default: `_`)
 * Merge keys from the fallback language into the current language
 
 ```php
 <?php
-	$i18n->setCachePath('./tmp/cache');
-	$i18n->setFilePath('./langfiles/lang/lang_{LANGUAGE}.ini'); // language file path
-	$i18n->setFallbackLang('en');
-	$i18n->setPrefix('I');
-	$i18n->setForcedLang('en'); // force english, even if another user language is available
-	$i18n->setSectionSeparator('_');
-	$i18n->setMergeFallback(false); // make keys available from the fallback language
-?>
+$i18n->setCachePath('./tmp/cache');
+$i18n->setFilePath('./langfiles/lang/lang_{LANGUAGE}.ini'); // language file path
+$i18n->setFallbackLang('en');
+$i18n->setPrefix('I');
+$i18n->setForcedLang('en'); // force english, even if another user language is available
+$i18n->setSectionSeparator('_');
+$i18n->setMergeFallback(false); // make keys available from the fallback language
 ```
 
 #### Shorthand
@@ -93,8 +85,7 @@ There is also a shorthand for that: you can set all settings in the constructor.
 
 ```php
 <?php
-	$i18n = new i18n('lang/lang_{LANGUAGE}.ini', 'langcache/', 'en');
-?>
+$i18n = new i18n('lang/lang_{LANGUAGE}.ini', 'langcache/', 'en');
 ```
 
 The (all optional) parameters are:
@@ -106,12 +97,15 @@ The (all optional) parameters are:
 
 ### 5. Call the `init()` method to load all files and translations
 
-Call the `init()` file to instruct the class to load the appropriate language file, load the cache file or generate it if it doesn't exist and make the `L` class available so you can access your localizations.
+Call the `init()` file to instruct the class to load the appropriate language file
+and returned as object implemented TranslatorInterface, load the cache file or generate it if it doesn't exist.
 
 ```php
 <?php
-	$i18n->init();
-?>
+/**
+ * @var $trans TranslatorInterface
+ */
+$trans = $i18n->init();
 ```
 
 ### 6. Use the localizations
@@ -122,22 +116,14 @@ In this example, we use the translation string seen in step 1.
 
 ```php
 <?php
-	echo L::greeting;
-	// If 'en' is applied: 'Hello World'
+echo $trams->t('greeting');
+// If 'en' is applied: 'Hello World'
 
-	echo L::category_somethingother;
-	// If 'en' is applied: 'Something other...'
+echo $trams->t('category_somethingother');
+// If 'en' is applied: 'Something other...'
 
-	echo L::last_modified("today");
-	// Could be: 'Last modified: today'
-
-	echo L($string);
-	// Outputs a dynamically chosen static property
-
-	echo L($string, $args);
-	// Same as L::last_modified("today");
-
-?>
+echo $trams->t('last_modified', ['how' => 'today']);
+// Could be: 'Last modified: today'
 ```
 
 As you can see, you can also call the constant as a function. It will be formatted with [vsprintf](http://php.net/manual/en/function.vsprintf.php).
@@ -166,24 +152,22 @@ You can change the user detection by extending the `i18n` class and overriding t
 
 ```php
 <?php
-	require_once 'i18n.class.php';
-	class My_i18n extends i18n {
 
-		public function getUserLangs() {
-			$userLangs = new array();
+use Philipp15b\i18n;
 
-			$userLangs[] = $_GET['language'];
+class My_i18n extends i18n
+{
+	public function getUserLangs() {
+		$userLangs = new array();
+		$userLangs[] = $_GET['language'];
+		$userLangs[] = $_SESSION['userlanguage'];
 
-			$userLangs[] = $_SESSION['userlanguage'];
-
-			return $userLangs;
-		}
-
+		return $userLangs;
 	}
+}
 
-	$i18n = new My_i18n();
-	// [...]
-?>
+$i18n = new My_i18n();
+// [...]
 ```
 
 This very basic extension only uses the GET parameter 'language' and the session parameter 'userlanguage'.
