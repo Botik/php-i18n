@@ -187,7 +187,7 @@ class i18n
         // search for cache file
         $this->cacheFilePath = $this->cachePath
             .'/php_i18n_'
-            .md5_file(__FILE__.$this->prefix.$this->appliedLang)
+            .md5(md5_file(__FILE__).$this->prefix.$this->langFilePath)
             .'_'
             .$this->prefix
             .'_'
